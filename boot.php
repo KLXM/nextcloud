@@ -49,6 +49,17 @@ if (\rex::isBackend() && \rex::getUser()) {
                     echo $content;
                     exit;
 
+                case 'pdf_preview':
+                    // Für PDF-Vorschau senden wir direkt die PDF-Datei
+                    \rex_response::cleanOutputBuffers();
+                    $content = $api->getImageContent($path);
+                    $filename = basename($path);
+                    
+                    header('Content-Type: application/pdf');
+                    header('Content-Disposition: inline; filename="' . $filename . '"');
+                    echo $content;
+                    exit;
+
                 case 'import':
                     $result = $api->importToMediapool($path, $categoryId);
                     \rex_response::sendJson(['success' => true, 'data' => $result]);

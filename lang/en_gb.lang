@@ -14,6 +14,8 @@ nextcloud_baseurl = NextCloud URL
 nextcloud_username = Username
 nextcloud_password = App password
 nextcloud_password_notice = Please use an app password from the NextCloud settings
+nextcloud_rootfolder = Root folder
+nextcloud_rootfolder_notice = Start folder in NextCloud (e.g. /media or empty for root directory)
 
 nextcloud_target_category = Target category
 nextcloud_filename = file name

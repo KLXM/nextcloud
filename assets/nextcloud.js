@@ -68,9 +68,11 @@ function renderFiles(files) {
             ? `<input type="checkbox" class="file-select" data-path="${file.path}" style="transform: scale(1.2);"${selectedFiles.has(file.path) ? ' checked' : ''}>`
             : '';
         
-        // Name mit oder ohne Link für Bildvorschau und Word-Break
+        // Name mit oder ohne Link für Bildvorschau/PDF-Vorschau und Word-Break
         const nameContent = file.type === 'image' 
             ? `<a href="#" onclick="event.stopPropagation(); previewImage('${file.path}', '${decodedName}'); return false;" style="word-break: break-word;">${decodedName}</a>`
+            : file.type === 'pdf'
+            ? `<a href="#" onclick="event.stopPropagation(); previewPdf('${file.path}', '${decodedName}'); return false;" style="word-break: break-word;">${decodedName}</a>`
             : `<span style="word-break: break-word;">${decodedName}</span>`;
             
         fileList.innerHTML += `
@@ -81,6 +83,8 @@ function renderFiles(files) {
                 <td style="width: 50px; text-align: center; vertical-align: middle;">
                     ${file.type === 'image' 
                         ? `<a href="#" onclick="event.stopPropagation(); previewImage('${file.path}', '${decodedName}'); return false;"><i class="rex-icon ${icon}"></i></a>` 
+                        : file.type === 'pdf'
+                        ? `<a href="#" onclick="event.stopPropagation(); previewPdf('${file.path}', '${decodedName}'); return false;"><i class="rex-icon ${icon}"></i></a>`
                         : `<i class="rex-icon ${icon}"></i>`}
                 </td>
                 <td style="max-width: 500px; vertical-align: middle;">${nameContent}</td>
@@ -244,6 +248,7 @@ function getFileIcon(type) {
     switch(type) {
         case 'folder': return 'fa-folder-o';
         case 'image': return 'fa-file-image-o';
+        case 'pdf': return 'fa-file-pdf-o';
         case 'document': return 'fa-file-text-o';
         case 'archive': return 'fa-file-archive-o';
         case 'audio': return 'fa-file-audio-o';
@@ -290,6 +295,20 @@ function previewImage(path, name) {
     modal.on('hidden.bs.modal', function() {
         modal.remove();
     });
+}
+
+function previewPdf(path, name) {
+    const params = {
+        page: 'nextcloud/main',
+        nextcloud_api: '1',
+        action: 'pdf_preview',
+        path: path
+    };
+    
+    const previewUrl = 'index.php?' + $.param(params);
+    
+    // Open PDF in new window
+    window.open(previewUrl, '_blank');
 }
 
 function importFile(path) {

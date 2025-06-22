@@ -7,7 +7,8 @@ if (\rex_post('config-submit', 'boolean')) {
     $this->setConfig(\rex_post('config', [
         ['baseurl', 'string'],
         ['username', 'string'],
-        ['password', 'string']
+        ['password', 'string'],
+        ['rootfolder', 'string']
     ]));
     
     echo \rex_view::success(\rex_i18n::msg('nextcloud_config_saved'));
@@ -35,6 +36,13 @@ $n = [];
 $n['label'] = '<label for="nextcloud-password">' . \rex_i18n::msg('nextcloud_password') . '</label>';
 $n['field'] = '<input type="password" id="nextcloud-password" name="config[password]" value="' . $this->getConfig('password') . '" class="form-control"/>';
 $n['notice'] = \rex_i18n::msg('nextcloud_password_notice');
+$formElements[] = $n;
+
+// Root-Ordner
+$n = [];
+$n['label'] = '<label for="nextcloud-rootfolder">' . \rex_i18n::msg('nextcloud_rootfolder') . '</label>';
+$n['field'] = '<input type="text" id="nextcloud-rootfolder" name="config[rootfolder]" value="' . $this->getConfig('rootfolder') . '" class="form-control" placeholder="/"/>';
+$n['notice'] = \rex_i18n::msg('nextcloud_rootfolder_notice');
 $formElements[] = $n;
 
 $fragment = new \rex_fragment();

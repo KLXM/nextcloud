@@ -5,7 +5,9 @@ Ein praktisches AddOn zur Integration einer NextCloud-Instanz in REDAXO. Es erm�
 ## Features
 
 - Durchsuchen der NextCloud-Dateien direkt in REDAXO
-- Vorschau von Bildern vor dem Import
+- **Konfigurierbare Root-Ordner**: Beschränkung auf bestimmte Verzeichnisse in der NextCloud
+- Vorschau von Bildern vor dem Import (Modal-Fenster)
+- **PDF-Vorschau**: PDFs können vor dem Import in einem neuen Fenster betrachtet werden
 - Einfacher Import per Klick in den Medienpool
 - Kategorisierung der importierten Dateien
 - Unterstützung verschiedener Dateitypen
@@ -19,6 +21,7 @@ Ein praktisches AddOn zur Integration einer NextCloud-Instanz in REDAXO. Es erm�
    - NextCloud-URL eingeben (z.B. `https://cloud.example.com`)
    - Benutzername festlegen
    - App-Passwort aus den NextCloud-Einstellungen eintragen
+   - **Optional**: Root-Ordner festlegen (z.B. `/medien` für einen spezifischen Startordner)
 
 ## Einrichtung in NextCloud
 
@@ -36,14 +39,16 @@ Nach erfolgreicher Konfiguration:
    - Ordner durch Klick öffnen
    - Navigationspfad oben nutzen
    - "Home"-Button führt zum Hauptverzeichnis
-3. Bilder können vor dem Import vorgeschaut werden
-4. Zielkategorie im Medienpool auswählen
-5. Dateien per Klick importieren
+3. Bilder können vor dem Import vorgeschaut werden (Modal-Fenster)
+4. **PDFs können vor dem Import in einem neuen Fenster/Tab geöffnet werden**
+5. Zielkategorie im Medienpool auswählen
+6. Dateien per Klick importieren
 
 ## Unterstützte Dateitypen
 
-- Bilder: jpg, jpeg, png, gif, svg, webp
-- Dokumente: pdf, doc, docx, xls, xlsx, ppt, pptx, txt, md, rtf
+- Bilder: jpg, jpeg, png, gif, svg, webp (mit Modal-Vorschau)
+- **PDFs: pdf (mit Vorschau in neuem Fenster)**
+- Dokumente: doc, docx, xls, xlsx, ppt, pptx, txt, md, rtf
 - Archive: zip, rar, 7z, tar, gz, bz2
 - Audio: mp3, wav, ogg, m4a, flac, aac
 - Video: mp4, avi, mkv, mov, webm, flv, wmv

@@ -5,17 +5,26 @@ class NextCloud {
     private $baseUrl;
     private $username;
     private $password;
+    private $rootFolder;
 
     public function __construct() {
         $this->baseUrl = \rex_config::get('nextcloud', 'baseurl');
         $this->username = \rex_config::get('nextcloud', 'username');
         $this->password = \rex_config::get('nextcloud', 'password');
+        $this->rootFolder = \rex_config::get('nextcloud', 'rootfolder', '/');
 
         if (!$this->baseUrl || !$this->username || !$this->password) {
             throw new \rex_exception('NextCloud configuration missing');
         }
 
         $this->baseUrl = rtrim($this->baseUrl, '/');
+        
+        // Normalize root folder
+        if ($this->rootFolder && $this->rootFolder !== '/') {
+            $this->rootFolder = '/' . trim($this->rootFolder, '/');
+        } else {
+            $this->rootFolder = '/';
+        }
     }
 
     private function encodeUrl($path) {
@@ -90,14 +99,26 @@ class NextCloud {
     }
 
     private function buildWebDavUrl($path) {
+        // Apply root folder prefix
+        $fullPath = $path;
+        if ($this->rootFolder !== '/') {
+            if ($path === '/') {
+                $fullPath = $this->rootFolder;
+            } else {
+                $fullPath = $this->rootFolder . $path;
+            }
+        }
+        
         // Normalisiere und kodiere den Pfad
-        $normalizedPath = $this->normalizePath($path);
+        $normalizedPath = $this->normalizePath($fullPath);
         
         // Baue die WebDAV-URL
         $webdavPath = '/remote.php/dav/files/' . rawurlencode($this->username) . $normalizedPath;
         
         \rex_logger::factory()->log('debug', 'NextCloud WebDAV URL', [
             'original_path' => $path,
+            'root_folder' => $this->rootFolder,
+            'full_path' => $fullPath,
             'normalized_path' => $normalizedPath,
             'webdav_path' => $webdavPath
         ]);
@@ -235,13 +256,24 @@ class NextCloud {
                 // Extraktion des Pfads
                 $pattern = '#^/remote\.php/dav/files/' . preg_quote($this->username, '#') . '#';
                 $relativePath = preg_replace($pattern, '', rawurldecode($href));
-                $relativePath = $this->normalizePath($relativePath);
+                
+                // Remove root folder prefix to get display path
+                $displayPath = $relativePath;
+                if ($this->rootFolder !== '/') {
+                    $rootFolderPattern = '#^' . preg_quote($this->rootFolder, '#') . '#';
+                    $displayPath = preg_replace($rootFolderPattern, '', $relativePath);
+                    if ($displayPath === '') {
+                        $displayPath = '/';
+                    }
+                }
+                
+                $displayPath = $this->normalizePath($displayPath);
                 
                 // Name aus dem Pfad extrahieren
-                $displayname = basename($relativePath);
+                $displayname = basename($displayPath);
                 
                 // Überspringe den aktuellen Ordner
-                if ($displayname === '' || $this->normalizePath($relativePath) === $this->normalizePath($path)) {
+                if ($displayname === '' || $this->normalizePath($displayPath) === $this->normalizePath($path)) {
                     continue;
                 }
                 
@@ -269,7 +301,7 @@ class NextCloud {
                 
                 $files[] = [
                     'name' => $displayname,
-                    'path' => $relativePath,
+                    'path' => $displayPath,
                     'type' => $isDirectory ? 'folder' : $this->getFileType($displayname),
                     'size' => $size,
                     'modified' => $lastMod
@@ -363,12 +395,14 @@ class NextCloud {
     private function getFileType($filename) {
         $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
         $imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
-        $documentTypes = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'md', 'rtf'];
+        $documentTypes = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'md', 'rtf'];
+        $pdfTypes = ['pdf'];
         $archiveTypes = ['zip', 'rar', '7z', 'tar', 'gz', 'bz2'];
         $audioTypes = ['mp3', 'wav', 'ogg', 'm4a', 'flac', 'aac'];
         $videoTypes = ['mp4', 'avi', 'mkv', 'mov', 'webm', 'flv', 'wmv'];
         
         if (in_array($ext, $imageTypes)) return 'image';
+        if (in_array($ext, $pdfTypes)) return 'pdf';
         if (in_array($ext, $documentTypes)) return 'document';
         if (in_array($ext, $archiveTypes)) return 'archive';
         if (in_array($ext, $audioTypes)) return 'audio';
